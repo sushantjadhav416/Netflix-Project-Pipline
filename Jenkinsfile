@@ -11,11 +11,11 @@ pipeline{
                 cleanWs()
             }
         }
-        stage('Checkout from Git'){
-            steps{
-                git branch: 'master', url: 'https://github.com/sushantjadhav416/Netflix-Project-Pipline.git'
-            }
-        }
+        // stage('Checkout from Git'){
+        //     steps{
+        //         git branch: 'master', url: 'https://github.com/sushantjadhav416/Netflix-Project-Pipline.git'
+        //     }
+        // }
         // stage("Sonarqube Analysis "){
         //     steps{
         //         withSonarQubeEnv('sonar-server') {
