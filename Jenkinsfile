@@ -33,7 +33,7 @@ pipeline{
         // }
         stage('Install Dependencies') {
             steps {
-                sh "apt-get npm install"
+                sh "apt-get install npm"
             }
         }
         stage('OWASP FS SCAN') {
