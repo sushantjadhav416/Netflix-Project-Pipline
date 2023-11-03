@@ -13,7 +13,7 @@ pipeline{
         }
         stage('Checkout from Git'){
             steps{
-                git branch: 'main', url: 'https://github.com/sushantjadhav416/Netflix-Project-Pipline.git'
+                git branch: 'master', url: 'https://github.com/sushantjadhav416/Netflix-Project-Pipline.git'
             }
         }
         // stage("Sonarqube Analysis "){
