@@ -9,3 +9,4 @@ ClassNameGenerator.configure((componentName) => {
 
   return newComponentName;
 });
+
