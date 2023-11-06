@@ -6,11 +6,11 @@ pipeline{
     }
     }
     stages {
-        stage('clean workspace'){
-            steps{
-                cleanWs()
-            }
-        }
+        // stage('clean workspace'){
+        //     steps{
+        //         cleanWs()
+        //     }
+        // }
         // stage('Checkout from Git'){
         //     steps{
         //         git branch: 'master', url: 'https://github.com/sushantjadhav416/Netflix-Project-Pipline.git'
