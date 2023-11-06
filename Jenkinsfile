@@ -31,12 +31,12 @@ pipeline{
         //         }
         //     } 
         // }
-        stage('Install Dependencies') {
-            steps {
-                sh "apt-get install npm"
-                sh "Yes"
-            }
-        }
+        // stage('Install Dependencies') {
+        //     steps {
+        //         sh "apt-get install npm"
+        //         sh "Yes"
+        //     }
+        // }
         stage('OWASP FS SCAN') {
             steps {
                 dependencyCheck additionalArguments: '--scan ./ --disableYarnAudit --disableNodeAudit', odcInstallation: 'DP-Check'
