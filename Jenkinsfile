@@ -1,7 +1,7 @@
 pipeline{
     agent {
     docker {
-      image 'abhishekf5/maven-abhishek-docker-agent:v1'
+      image 'sushantjadhavhcl/docker-agent:I20240425'
       args '--user root -v /var/run/docker.sock:/var/run/docker.sock' // mount Docker socket to access the host's Docker daemon
     }
   }
@@ -11,11 +11,11 @@ pipeline{
         //         cleanWs()
         //     }
         // }
-        // stage('Checkout from Git'){
-        //     steps{
-        //         git branch: 'master', url: 'https://github.com/sushantjadhav416/Netflix-Project-Pipline.git'
-        //     }
-        // }
+        stage('Checkout from Git'){
+            steps{
+                git branch: 'master', url: 'https://github.com/sushantjadhav416/Netflix-Project-Pipline.git'
+            }
+        }
         // stage("Sonarqube Analysis "){
         //     steps{
         //         withSonarQubeEnv('sonar-server') {
@@ -37,12 +37,21 @@ pipeline{
                
             }
         }
-        stage('OWASP FS SCAN') {
-            steps {
-                dependencyCheck additionalArguments: '--scan ./ --disableYarnAudit --disableNodeAudit', odcInstallation: 'DP-Check'
-                dependencyCheckPublisher pattern: '**/dependency-check-report.xml'
-            }
-        }
+        // stage("TRIVY"){
+        //     steps{
+        //         sh "sudo apt-get install wget apt-transport-https gnupg lsb-release" 
+        //         sh "wget -qO - https://aquasecurity.github.io/trivy-repo/deb/public.key | sudo apt-key add -" 
+        //         sh "echo deb https://aquasecurity.github.io/trivy-repo/deb $(lsb_release -sc) main | sudo tee -a /etc/apt/sources.list.d/trivy.list" 
+        //         sh "sudo apt-get update"
+        //         sh "sudo apt-get install trivy" 
+        //     }
+        // }
+        // stage('OWASP FS SCAN') {
+        //     steps {
+        //         dependencyCheck additionalArguments: '--scan ./ --disableYarnAudit --disableNodeAudit', odcInstallation: 'DP-Check'
+        //         dependencyCheckPublisher pattern: '**/dependency-check-report.xml'
+        //     }
+        // }
         stage('TRIVY FS SCAN') {
             steps {
                 sh "trivy fs . > trivyfs.txt"
@@ -50,12 +59,14 @@ pipeline{
         }
         stage("Docker Build & Push"){
             steps{
-                script{
-                   withDockerRegistry(credentialsId: 'docker-cred', toolName: 'docker'){   
+                script
+                {
+                   withDockerRegistry(credentialsId: 'docker-cred', toolName: 'docker')
+                   {
                        sh "docker build --build-arg TMDB_V3_API_KEY=c9f40f4b6f41c59e1459fd2b1de3f7aa netflix ."
                        sh "docker tag netflix sushantjadhavhcl/netflix:latest "
                        sh "docker push sushantjadhavhcl/netflix:latest "
-                    }
+                   }
                 }
             }
         }
