@@ -1,54 +1,49 @@
-pipeline{
-    agent {
+pipeline {
+  agent {
     docker {
-      image 'sushantjadhavhcl/docker-agent:I20240425'
+      image 'abhishekf5/maven-abhishek-docker-agent:v1'
       args '--user root -v /var/run/docker.sock:/var/run/docker.sock' // mount Docker socket to access the host's Docker daemon
     }
   }
-    stages 
-    {
-        stage('clean workspace'){
-            steps{
-                cleanWs()
-            }
-        }
-        stage('Checkout from Git'){
-            steps{
-                git branch: 'main', url: 'https://github.com/Aj7Ay/Netflix-clone.git'
-            }
-        }
-        // stage("Sonarqube Analysis "){
-        //     steps{
-        //         withSonarQubeEnv('sonar-server') {
-        //             sh ''' $SCANNER_HOME/bin/sonar-scanner -Dsonar.projectName=Netflix \
-        //             -Dsonar.projectKey=Netflix '''
-        //         }
-        //     }
-        // }
-        // stage("quality gate"){
-        //    steps {
-        //         script {
-        //             waitForQualityGate abortPipeline: false, credentialsId: 'Sonar-token' 
-        //         }
-        //     } 
-        // }
-        stage('Install Dependencies') {
+  stages 
+  {
+    stage('Checkout') {
+      steps {
+        sh 'echo passed'
+        git branch: 'master', url: 'https://github.com/sushantjadhav416/Netflix-Project-Pipline'
+      }
+    }
+    // stage('Build and Test') {
+    //   steps {
+    //     sh 'ls -ltr'
+    //     // build the project and create a JAR file
+    //     sh 'cd  mvn clean package'
+    //   }
+    // }
+    // stage('Static Code Analysis') {
+    //   environment {
+    //     SONAR_URL = "http://localhost:9000"
+    //     SONAR_AUTH_TOKEN = "39e43564678269e2a20c9fc159dfb7243ea1a559"
+    //   }
+    //   steps {
+    //     withCredentials([string(credentialsId: 'sonarqube', variable: 'SONAR_AUTH_TOKEN')]) {
+    //       sh 'cd E_shop && mvn sonar:sonar -Dsonar.login=$SONAR_AUTH_TOKEN -Dsonar.host.url=${SONAR_URL}'
+    //     }
+    //   }
+    // }
+
+    stage('Install Dependencies') {
             steps {
                 sh "npm install"
             }
         }
-        // stage('OWASP FS SCAN') {
-        //     steps {
-        //         dependencyCheck additionalArguments: '--scan ./ --disableYarnAudit --disableNodeAudit', odcInstallation: 'DP-Check'
-        //         dependencyCheckPublisher pattern: '**/dependency-check-report.xml'
-        //     }
-        // }
-        stage('TRIVY FS SCAN') {
+
+     stage('TRIVY FS SCAN') {
             steps {
                 sh "trivy fs . > trivyfs.txt"
             }
         }
-        stage("Docker Build & Push"){
+    stage("Docker Build & Push"){
             steps{
                 script{
                    withDockerRegistry(credentialsId: 'docker', toolName: 'docker'){   
@@ -59,39 +54,20 @@ pipeline{
                 }
             }
         }
-        stage("TRIVY"){
+    stage("TRIVY"){
             steps{
                 sh "trivy image nasi101/netflix:latest > trivyimage.txt" 
             }
         }
-        stage('Deploy to container'){
+    stage('Deploy to container'){
             steps{
                 sh 'docker run -d -p 8081:80 nasi101/netflix:latest'
             }
         }
-        // stage('Deploy to kubernets'){
-        //     steps{
-        //         script{
-        //             dir('Kubernetes') {
-        //                 withKubeConfig(caCertificate: '', clusterName: '', contextName: '', credentialsId: 'k8s', namespace: '', restrictKubeConfigAccess: false, serverUrl: '') {
-        //                         sh 'kubectl apply -f deployment.yml'
-        //                         sh 'kubectl apply -f service.yml'
-        //                 }   
-        //             }
-        //         }
-        //     }
-        // }
+    
+   }
 
-    }
-    post {
-     always {
-        emailext attachLog: true,
-            subject: "'${currentBuild.result}'",
-            body: "Project: ${env.JOB_NAME}<br/>" +
-                "Build Number: ${env.BUILD_NUMBER}<br/>" +
-                "URL: ${env.BUILD_URL}<br/>",
-            to: 'sushantjadhav416@gmail.com',                                
-            attachmentsPattern: 'trivyfs.txt,trivyimage.txt'
-        }
-    }
+   
+
+
 }
