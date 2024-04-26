@@ -13,32 +13,7 @@ pipeline {
         git branch: 'master', url: 'https://github.com/sushantjadhav416/Netflix-Project-Pipline'
       }
     }
-    // stage('Build and Test') {
-    //   steps {
-    //     sh 'ls -ltr'
-    //     // build the project and create a JAR file
-    //     sh 'cd  mvn clean package'
-    //   }
-    // }
-    // stage('Static Code Analysis') {
-    //   environment {
-    //     SONAR_URL = "http://localhost:9000"
-    //     SONAR_AUTH_TOKEN = "39e43564678269e2a20c9fc159dfb7243ea1a559"
-    //   }
-    //   steps {
-    //     withCredentials([string(credentialsId: 'sonarqube', variable: 'SONAR_AUTH_TOKEN')]) {
-    //       sh 'cd E_shop && mvn sonar:sonar -Dsonar.login=$SONAR_AUTH_TOKEN -Dsonar.host.url=${SONAR_URL}'
-    //     }
-    //   }
-    // }
-
-    // stage('Install Dependencies') {
-    //         steps {
-    //             sh "npm install"
-    //         }
-    //     }
-
-     stage('TRIVY FS SCAN') {
+    stage('TRIVY FS SCAN') {
             steps {
                 sh "trivy fs . > trivyfs.txt"
             }
@@ -46,25 +21,24 @@ pipeline {
     stage("Docker Build & Push"){
             steps{
                 script{
-                   withDockerRegistry(credentialsId: 'docker', toolName: 'docker'){   
+                   withDockerRegistry(credentialsId: 'docker-cred', toolName: 'docker'){   
                        sh "docker build --build-arg TMDB_V3_API_KEY=<yourtmdbapikey> -t netflix ."
-                       sh "docker tag netflix nasi101/netflix:latest "
-                       sh "docker push nasi101/netflix:latest "
+                       sh "docker tag sushantjadhavhcl/netflix:latest "
+                       sh "docker push sushantjadhav/netflix:latest "
                     }
                 }
             }
         }
     stage("TRIVY"){
             steps{
-                sh "trivy image nasi101/netflix:latest > trivyimage.txt" 
+                sh "trivy image sushantjadhavhcl/netflix:latest > trivyimage.txt" 
             }
         }
     stage('Deploy to container'){
             steps{
-                sh 'docker run -d -p 8081:80 nasi101/netflix:latest'
+                sh "docker run -d -p 8081:80 sushantjadhavhcl/netflix:latest"
             }
-        }
-    
+    }
    }
    
 
